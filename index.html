@@ -386,13 +386,17 @@
                 let draft_score = 0;
                 if (minutes === 0) { // Newcomer: Hype Score
                     draft_score = (p.now_cost * 4) + (parseFloat(p.selected_by_percent) * 1.5);
-                } else if (minutes > 0 && minutes < 90) { // Low minutes player: Conservative score
+                
+                // Player with limited data (1-899 minutes) - use conservative score
+                } else if (minutes > 0 && minutes < 900) { 
                     draft_score = p.total_points * 1.5;
-                } else { // Established players
-                    draft_score = (parseFloat(p.points_per_game) * 10) + 
-                                  (p.ict_per_90 * 2) + 
-                                  (p.xGI_per90 * 20);
-                    draft_score += (parseFloat(p.selected_by_percent) / 5); // Ownership boost
+
+                // Established players (900+ minutes) - use the full, rebalanced formula
+                } else { 
+                    draft_score = (parseFloat(p.points_per_game) * 12) + 
+                                  (p.ict_per_90 * 4) + 
+                                  (p.xGI_per90 * 12) +
+                                  (parseFloat(p.selected_by_percent) / 4);
                 }
                 p.draft_score = Math.max(0, draft_score); // Ensure no negative scores
 
