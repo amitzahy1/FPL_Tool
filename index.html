@@ -348,7 +348,6 @@
                 p.xGI_per90 = minutes > 0 ? (parseFloat(p.expected_goal_involvements) / minutes) * 90 : 0;
                 p.xGC_per90 = minutes > 0 ? (parseFloat(p.expected_goals_conceded) / minutes) * 90 : 0;
                 p.ict_per_90 = minutes > 0 ? (parseFloat(p.ict_index) / minutes) * 90 : 0;
-                p.bonus_per_90 = minutes > 0 ? (p.bonus / minutes) * 90 : 0; // Added for GKP calculation
 
                 p.xDiff = gi - xgi;
                 p.now_cost = p.now_cost / 10;
@@ -387,20 +386,17 @@
                 let draft_score = 0;
                 if (minutes === 0) { // Newcomer: Hype Score
                     draft_score = (p.now_cost * 4) + (parseFloat(p.selected_by_percent) * 1.5);
-                } else if (minutes > 0 && minutes < 90) { // Low minutes player: Predictive score based on 70% of PPG
-                    draft_score = parseFloat(p.points_per_game) * 7; // (PPG * 0.7) * 10
-                } else { // Established players
-                    if (p.position_name === 'GKP') {
-                         draft_score = (parseFloat(p.points_per_game) * 10) + 
-                                      (p.ict_per_90 * 5) + 
-                                      (p.bonus_per_90 * 10);
-                        draft_score += (parseFloat(p.selected_by_percent) / 5);
-                    } else {
-                        draft_score = (parseFloat(p.points_per_game) * 10) + 
-                                      (p.ict_per_90 * 2) + 
-                                      (p.xGI_per90 * 20);
-                        draft_score += (parseFloat(p.selected_by_percent) / 5); // Ownership boost
-                    }
+                
+                // Player with limited data (1-899 minutes) - use conservative score
+                } else if (minutes > 0 && minutes < 900) { 
+                    draft_score = p.total_points * 1.5;
+
+                // Established players (900+ minutes) - use the full, rebalanced formula
+                } else { 
+                    draft_score = (parseFloat(p.points_per_game) * 12) + 
+                                  (p.ict_per_90 * 4) + 
+                                  (p.xGI_per90 * 12) +
+                                  (parseFloat(p.selected_by_percent) / 4);
                 }
                 p.draft_score = Math.max(0, draft_score); // Ensure no negative scores
 
