@@ -339,7 +339,7 @@
             }
 
             return players.map(p => {
-                const minutes = p.minutes || 0;
+                const minutes = parseInt(p.minutes || 0, 10); // Ensure minutes is an integer
                 const gi = (p.goals_scored || 0) + (p.assists || 0);
                 const xgi = parseFloat(p.expected_goal_involvements) || 0;
 
